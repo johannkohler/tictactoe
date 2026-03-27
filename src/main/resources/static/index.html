@@ -1,55 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <title>Tic Tac Toe</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Theme variables ── */
+    :root {
+      --bg:           #1a1a2e;
+      --sidebar-bg:   #0f1a30;
+      --sidebar-border: #1e2d50;
+      --card-bg:      #16213e;
+      --card-hover:   #1e3060;
+      --text:         #eee;
+      --text-muted:   #7a8aaa;
+      --accent:       #e94560;
+      --accent-hover: #c73652;
+      --status-color: #a8dadc;
+      --sidebar-label:#a8dadc;
+      --cell-hover:   #0f3460;
+      --badge-prog-bg:#1e3a5f; --badge-prog-fg:#a8dadc;
+      --badge-x-bg:   #3a1020; --badge-x-fg:   #e94560;
+      --badge-o-bg:   #0d3020; --badge-o-fg:   #4ade80;
+      --badge-draw-bg:#2a2a2a; --badge-draw-fg:#aaa;
+      --toggle-bg:    #16213e;
+      --toggle-border:#2a3a60;
+    }
+
+    [data-theme="light"] {
+      --bg:           #f0f4f8;
+      --sidebar-bg:   #e2e8f0;
+      --sidebar-border: #cbd5e1;
+      --card-bg:      #fff;
+      --card-hover:   #e8f0fe;
+      --text:         #1a202c;
+      --text-muted:   #64748b;
+      --accent:       #e94560;
+      --accent-hover: #c73652;
+      --status-color: #0369a1;
+      --sidebar-label:#0369a1;
+      --cell-hover:   #dbeafe;
+      --badge-prog-bg:#dbeafe; --badge-prog-fg:#1d4ed8;
+      --badge-x-bg:   #fee2e2; --badge-x-fg:   #dc2626;
+      --badge-o-bg:   #dcfce7; --badge-o-fg:   #16a34a;
+      --badge-draw-bg:#f1f5f9; --badge-draw-fg:#64748b;
+      --toggle-bg:    #fff;
+      --toggle-border:#cbd5e1;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #1a1a2e;
-      color: #eee;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       min-height: 100vh;
+      transition: background 0.25s, color 0.25s;
     }
+
+    /* ── Theme toggle ── */
+    #theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: var(--toggle-bg);
+      border: 1.5px solid var(--toggle-border);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      z-index: 100;
+    }
+    #theme-toggle:hover { border-color: var(--accent); }
 
     /* ── Sidebar ── */
     #sidebar {
       width: 240px;
       min-height: 100vh;
-      background: #0f1a30;
-      border-right: 1px solid #1e2d50;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
       display: flex;
       flex-direction: column;
       padding: 1.5rem 1rem;
       gap: 0.75rem;
       overflow-y: auto;
+      transition: background 0.25s, border-color 0.25s;
     }
 
     #sidebar h2 {
       font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      color: #a8dadc;
+      color: var(--sidebar-label);
       margin-bottom: 0.25rem;
     }
 
     .game-entry {
-      background: #16213e;
+      background: var(--card-bg);
       border-radius: 8px;
       padding: 0.6rem 0.8rem;
       cursor: pointer;
       transition: background 0.15s;
       border: 2px solid transparent;
     }
-    .game-entry:hover { background: #1e3060; }
-    .game-entry.active { border-color: #e94560; }
+    .game-entry:hover { background: var(--card-hover); }
+    .game-entry.active { border-color: var(--accent); }
 
     .game-entry .game-name {
       font-weight: 600;
       font-size: 0.95rem;
-      color: #eee;
+      color: var(--text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -57,7 +122,7 @@
 
     .game-entry .game-meta {
       font-size: 0.75rem;
-      color: #7a8aaa;
+      color: var(--text-muted);
       margin-top: 0.2rem;
     }
 
@@ -70,10 +135,10 @@
       font-weight: 600;
       text-transform: uppercase;
     }
-    .badge-IN_PROGRESS { background: #1e3a5f; color: #a8dadc; }
-    .badge-X_WINS      { background: #3a1020; color: #e94560; }
-    .badge-O_WINS      { background: #0d3020; color: #4ade80; }
-    .badge-DRAW        { background: #2a2a2a; color: #aaa; }
+    .badge-IN_PROGRESS { background: var(--badge-prog-bg); color: var(--badge-prog-fg); }
+    .badge-X_WINS      { background: var(--badge-x-bg);    color: var(--badge-x-fg); }
+    .badge-O_WINS      { background: var(--badge-o-bg);    color: var(--badge-o-fg); }
+    .badge-DRAW        { background: var(--badge-draw-bg); color: var(--badge-draw-fg); }
 
     /* ── Main area ── */
     #main {
@@ -85,11 +150,11 @@
       padding: 2rem;
     }
 
-    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; letter-spacing: 2px; color: #e94560; }
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; letter-spacing: 2px; color: var(--accent); }
 
     #game-title {
       font-size: 1rem;
-      color: #7a8aaa;
+      color: var(--text-muted);
       margin-bottom: 0.25rem;
       height: 1.4rem;
     }
@@ -98,7 +163,7 @@
       font-size: 1.2rem;
       margin-bottom: 1.5rem;
       height: 1.6rem;
-      color: #a8dadc;
+      color: var(--status-color);
     }
 
     #board {
@@ -109,7 +174,7 @@
     }
 
     .cell {
-      background: #16213e;
+      background: var(--card-bg);
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -120,7 +185,7 @@
       transition: background 0.15s, transform 0.1s;
       user-select: none;
     }
-    .cell:hover:not(.taken) { background: #0f3460; transform: scale(1.04); }
+    .cell:hover:not(.taken) { background: var(--cell-hover); transform: scale(1.04); }
     .cell.taken { cursor: default; }
     .cell.x { color: #e94560; }
     .cell.o { color: #4ade80; }
@@ -129,17 +194,22 @@
       margin-top: 2rem;
       padding: 0.7rem 2.2rem;
       font-size: 1rem;
-      background: #e94560;
+      background: var(--accent);
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.2s;
     }
-    #new-game:hover { background: #c73652; }
+    #new-game:hover { background: var(--accent-hover); }
   </style>
 </head>
 <body>
+  <button id="theme-toggle" aria-label="Toggle theme">
+    <span id="theme-icon">☀️</span>
+    <span id="theme-label">Light</span>
+  </button>
+
   <aside id="sidebar">
     <h2>Games</h2>
   </aside>
@@ -155,11 +225,28 @@
   <script>
     let gameId = null;
 
-    const statusEl    = document.getElementById('status');
-    const boardEl     = document.getElementById('board');
-    const titleEl     = document.getElementById('game-title');
-    const sidebarEl   = document.getElementById('sidebar');
+    const statusEl  = document.getElementById('status');
+    const boardEl   = document.getElementById('board');
+    const titleEl   = document.getElementById('game-title');
+    const sidebarEl = document.getElementById('sidebar');
+    const html      = document.documentElement;
 
+    // ── Theme ──
+    const saved = localStorage.getItem('theme') || 'dark';
+    setTheme(saved);
+
+    function setTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      document.getElementById('theme-icon').textContent  = theme === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = theme === 'dark' ? 'Light' : 'Dark';
+      localStorage.setItem('theme', theme);
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    // ── Game ──
     function statusLabel(s, currentPlayer) {
       if (s === 'IN_PROGRESS') return `Player ${currentPlayer}'s turn`;
       if (s === 'DRAW')        return "It's a draw!";
@@ -187,7 +274,6 @@
       const res   = await fetch('/api/game');
       const games = await res.json();
 
-      // keep header, rebuild entries
       sidebarEl.innerHTML = '<h2>Games</h2>';
       games.forEach(g => {
         const el = document.createElement('div');
@@ -228,8 +314,6 @@
     }
 
     document.getElementById('new-game').addEventListener('click', newGame);
-
-    // load sidebar on startup
     refreshSidebar();
   </script>
 </body>
