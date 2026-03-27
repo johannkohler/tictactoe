@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tic Tac Toe</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: #0f1a30;
+      border-right: 1px solid #1e2d50;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      gap: 0.75rem;
+      overflow-y: auto;
+    }
+
+    #sidebar h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #a8dadc;
+      margin-bottom: 0.25rem;
+    }
+
+    .game-entry {
+      background: #16213e;
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      border: 2px solid transparent;
+    }
+    .game-entry:hover { background: #1e3060; }
+    .game-entry.active { border-color: #e94560; }
+
+    .game-entry .game-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #eee;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .game-entry .game-meta {
+      font-size: 0.75rem;
+      color: #7a8aaa;
+      margin-top: 0.2rem;
+    }
+
+    .game-entry .game-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-top: 0.3rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-IN_PROGRESS { background: #1e3a5f; color: #a8dadc; }
+    .badge-X_WINS      { background: #3a1020; color: #e94560; }
+    .badge-O_WINS      { background: #0d3020; color: #4ade80; }
+    .badge-DRAW        { background: #2a2a2a; color: #aaa; }
+
+    /* ── Main area ── */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; letter-spacing: 2px; color: #e94560; }
+
+    #game-title {
+      font-size: 1rem;
+      color: #7a8aaa;
+      margin-bottom: 0.25rem;
+      height: 1.4rem;
+    }
+
+    #status {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      height: 1.6rem;
+      color: #a8dadc;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 110px);
+      grid-template-rows: repeat(3, 110px);
+      gap: 8px;
+    }
+
+    .cell {
+      background: #16213e;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      user-select: none;
+    }
+    .cell:hover:not(.taken) { background: #0f3460; transform: scale(1.04); }
+    .cell.taken { cursor: default; }
+    .cell.x { color: #e94560; }
+    .cell.o { color: #4ade80; }
+
+    #new-game {
+      margin-top: 2rem;
+      padding: 0.7rem 2.2rem;
+      font-size: 1rem;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #new-game:hover { background: #c73652; }
+  </style>
+</head>
+<body>
+  <aside id="sidebar">
+    <h2>Games</h2>
+  </aside>
+
+  <main id="main">
+    <h1>Tic Tac Toe</h1>
+    <div id="game-title"></div>
+    <div id="status">Press "New Game" to start</div>
+    <div id="board"></div>
+    <button id="new-game">New Game</button>
+  </main>
+
+  <script>
+    let gameId = null;
+
+    const statusEl    = document.getElementById('status');
+    const boardEl     = document.getElementById('board');
+    const titleEl     = document.getElementById('game-title');
+    const sidebarEl   = document.getElementById('sidebar');
+
+    function statusLabel(s, currentPlayer) {
+      if (s === 'IN_PROGRESS') return `Player ${currentPlayer}'s turn`;
+      if (s === 'DRAW')        return "It's a draw!";
+      return `Player ${s[0]} wins!`;
+    }
+
+    function renderBoard(data) {
+      gameId = data.id;
+      titleEl.textContent = data.name;
+      boardEl.innerHTML = '';
+      data.board.forEach((val, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell' + (val ? ' taken ' + val.toLowerCase() : '');
+        cell.textContent = val;
+        if (!val && data.status === 'IN_PROGRESS') {
+          cell.addEventListener('click', () => makeMove(i));
+        }
+        boardEl.appendChild(cell);
+      });
+      statusEl.textContent = statusLabel(data.status, data.currentPlayer);
+      refreshSidebar();
+    }
+
+    async function refreshSidebar() {
+      const res   = await fetch('/api/game');
+      const games = await res.json();
+
+      // keep header, rebuild entries
+      sidebarEl.innerHTML = '<h2>Games</h2>';
+      games.forEach(g => {
+        const el = document.createElement('div');
+        el.className = 'game-entry' + (g.id === gameId ? ' active' : '');
+        const date = new Date(g.startDate).toLocaleDateString(undefined, {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        el.innerHTML = `
+          <div class="game-name">${g.name}</div>
+          <div class="game-meta">${date}</div>
+          <span class="game-badge badge-${g.status}">${g.status.replace('_', ' ')}</span>`;
+        el.addEventListener('click', () => loadGame(g.id));
+        sidebarEl.appendChild(el);
+      });
+    }
+
+    async function loadGame(id) {
+      const res  = await fetch(`/api/game/${id}`);
+      const data = await res.json();
+      renderBoard(data);
+    }
+
+    async function newGame() {
+      const res  = await fetch('/api/game/new', { method: 'POST' });
+      const data = await res.json();
+      renderBoard(data);
+    }
+
+    async function makeMove(position) {
+      if (!gameId) return;
+      const res  = await fetch(`/api/game/${gameId}/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position })
+      });
+      const data = await res.json();
+      renderBoard(data);
+    }
+
+    document.getElementById('new-game').addEventListener('click', newGame);
+
+    // load sidebar on startup
+    refreshSidebar();
+  </script>
+</body>
+</html>
