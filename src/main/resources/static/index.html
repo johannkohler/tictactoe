@@ -6,47 +6,64 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Skip link ── */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 0;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      z-index: 200;
+      border-radius: 0 0 6px 0;
+      text-decoration: none;
+    }
+    .skip-link:focus { top: 0; }
+
     /* ── Theme variables ── */
     :root {
-      --bg:           #1a1a2e;
-      --sidebar-bg:   #0f1a30;
+      --bg:             #1a1a2e;
+      --sidebar-bg:     #0f1a30;
       --sidebar-border: #1e2d50;
-      --card-bg:      #16213e;
-      --card-hover:   #1e3060;
-      --text:         #eee;
-      --text-muted:   #7a8aaa;
-      --accent:       #e94560;
-      --accent-hover: #c73652;
-      --status-color: #a8dadc;
-      --sidebar-label:#a8dadc;
-      --cell-hover:   #0f3460;
-      --badge-prog-bg:#1e3a5f; --badge-prog-fg:#a8dadc;
-      --badge-x-bg:   #3a1020; --badge-x-fg:   #e94560;
-      --badge-o-bg:   #0d3020; --badge-o-fg:   #4ade80;
-      --badge-draw-bg:#2a2a2a; --badge-draw-fg:#aaa;
-      --toggle-bg:    #16213e;
-      --toggle-border:#2a3a60;
+      --card-bg:        #16213e;
+      --card-hover:     #1e3060;
+      --text:           #eee;
+      --text-muted:     #9aabbb;
+      --accent:         #e94560;
+      --accent-hover:   #c73652;
+      --status-color:   #a8dadc;
+      --sidebar-label:  #a8dadc;
+      --cell-hover:     #0f3460;
+      --focus-ring:     #fff;
+      --badge-prog-bg:  #1e3a5f; --badge-prog-fg: #a8dadc;
+      --badge-x-bg:     #3a1020; --badge-x-fg:   #f07a8e;
+      --badge-o-bg:     #0d3020; --badge-o-fg:   #4ade80;
+      --badge-draw-bg:  #2a2a2a; --badge-draw-fg: #c5ccd6;
+      --toggle-bg:      #16213e;
+      --toggle-border:  #2a3a60;
     }
 
     [data-theme="light"] {
-      --bg:           #f0f4f8;
-      --sidebar-bg:   #e2e8f0;
+      --bg:             #f0f4f8;
+      --sidebar-bg:     #e2e8f0;
       --sidebar-border: #cbd5e1;
-      --card-bg:      #fff;
-      --card-hover:   #e8f0fe;
-      --text:         #1a202c;
-      --text-muted:   #64748b;
-      --accent:       #e94560;
-      --accent-hover: #c73652;
-      --status-color: #0369a1;
-      --sidebar-label:#0369a1;
-      --cell-hover:   #dbeafe;
-      --badge-prog-bg:#dbeafe; --badge-prog-fg:#1d4ed8;
-      --badge-x-bg:   #fee2e2; --badge-x-fg:   #dc2626;
-      --badge-o-bg:   #dcfce7; --badge-o-fg:   #16a34a;
-      --badge-draw-bg:#f1f5f9; --badge-draw-fg:#64748b;
-      --toggle-bg:    #fff;
-      --toggle-border:#cbd5e1;
+      --card-bg:        #fff;
+      --card-hover:     #e8f0fe;
+      --text:           #1a202c;
+      --text-muted:     #4a5568;
+      --accent:         #c8173a;
+      --accent-hover:   #a01030;
+      --status-color:   #0369a1;
+      --sidebar-label:  #0369a1;
+      --cell-hover:     #dbeafe;
+      --focus-ring:     #0369a1;
+      --badge-prog-bg:  #dbeafe; --badge-prog-fg: #1e40af;
+      --badge-x-bg:     #fee2e2; --badge-x-fg:   #991b1b;
+      --badge-o-bg:     #dcfce7; --badge-o-fg:   #166534;
+      --badge-draw-bg:  #e2e8f0; --badge-draw-fg: #374151;
+      --toggle-bg:      #fff;
+      --toggle-border:  #cbd5e1;
     }
 
     body {
@@ -56,6 +73,12 @@
       display: flex;
       min-height: 100vh;
       transition: background 0.25s, color 0.25s;
+    }
+
+    /* ── Focus styles (WCAG 2.4.7 / 2.4.11) ── */
+    :focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 3px;
     }
 
     /* ── Theme toggle ── */
@@ -107,9 +130,12 @@
       cursor: pointer;
       transition: background 0.15s;
       border: 2px solid transparent;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
     }
     .game-entry:hover { background: var(--card-hover); }
-    .game-entry.active { border-color: var(--accent); }
+    .game-entry[aria-current="true"] { border-color: var(--accent); }
 
     .game-entry .game-name {
       font-weight: 600;
@@ -128,12 +154,13 @@
 
     .game-entry .game-badge {
       display: inline-block;
-      font-size: 0.65rem;
-      padding: 0.1rem 0.4rem;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
       border-radius: 4px;
       margin-top: 0.3rem;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
     .badge-IN_PROGRESS { background: var(--badge-prog-bg); color: var(--badge-prog-fg); }
     .badge-X_WINS      { background: var(--badge-x-bg);    color: var(--badge-x-fg); }
@@ -159,6 +186,7 @@
       height: 1.4rem;
     }
 
+    /* Live region for screen readers */
     #status {
       font-size: 1.2rem;
       margin-bottom: 1.5rem;
@@ -166,6 +194,7 @@
       color: var(--status-color);
     }
 
+    /* ── Board (WCAG 1.3.1 – meaningful structure) ── */
     #board {
       display: grid;
       grid-template-columns: repeat(3, 110px);
@@ -175,6 +204,7 @@
 
     .cell {
       background: var(--card-bg);
+      border: 2px solid transparent;
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -184,9 +214,12 @@
       cursor: pointer;
       transition: background 0.15s, transform 0.1s;
       user-select: none;
+      font-family: inherit;
+      color: var(--text);
+      padding: 0;
     }
-    .cell:hover:not(.taken) { background: var(--cell-hover); transform: scale(1.04); }
-    .cell.taken { cursor: default; }
+    .cell:hover:not(:disabled) { background: var(--cell-hover); transform: scale(1.04); }
+    .cell:disabled { cursor: default; opacity: 1; }
     .cell.x { color: #e94560; }
     .cell.o { color: #4ade80; }
 
@@ -195,34 +228,61 @@
       padding: 0.7rem 2.2rem;
       font-size: 1rem;
       background: var(--accent);
-      color: white;
+      color: #fff;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.2s;
+      font-family: inherit;
     }
     #new-game:hover { background: var(--accent-hover); }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, body { transition: none !important; }
+      .cell:hover:not(:disabled) { transform: none; }
+    }
   </style>
 </head>
 <body>
-  <button id="theme-toggle" aria-label="Toggle theme">
-    <span id="theme-icon">☀️</span>
-    <span id="theme-label">Light</span>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <button id="theme-toggle" aria-live="polite">
+    <span aria-hidden="true" id="theme-icon">☀️</span>
+    <span id="theme-label">Switch to light mode</span>
   </button>
 
-  <aside id="sidebar">
-    <h2>Games</h2>
-  </aside>
+  <nav id="sidebar" aria-label="Game history">
+    <h2 id="sidebar-heading">Games</h2>
+  </nav>
 
-  <main id="main">
+  <main id="main" tabindex="-1">
     <h1>Tic Tac Toe</h1>
-    <div id="game-title"></div>
-    <div id="status">Press "New Game" to start</div>
-    <div id="board"></div>
+    <p id="game-title" aria-label="Current game name"></p>
+
+    <div
+      id="status"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true">Press "New Game" to start</div>
+
+    <div
+      id="board"
+      role="grid"
+      aria-label="Tic Tac Toe board"
+      aria-describedby="status">
+    </div>
+
     <button id="new-game">New Game</button>
   </main>
 
   <script>
+    const CELL_NAMES = [
+      'top-left',    'top-center',    'top-right',
+      'middle-left', 'middle-center', 'middle-right',
+      'bottom-left', 'bottom-center', 'bottom-right'
+    ];
+
     let gameId = null;
 
     const statusEl  = document.getElementById('status');
@@ -233,12 +293,15 @@
 
     // ── Theme ──
     const saved = localStorage.getItem('theme') || 'dark';
-    setTheme(saved);
+    setTheme(saved, false);
 
-    function setTheme(theme) {
+    function setTheme(theme, announce = true) {
       html.setAttribute('data-theme', theme);
-      document.getElementById('theme-icon').textContent  = theme === 'dark' ? '☀️' : '🌙';
-      document.getElementById('theme-label').textContent = theme === 'dark' ? 'Light' : 'Dark';
+      const isDark = theme === 'dark';
+      document.getElementById('theme-icon').textContent   = isDark ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent  = isDark
+        ? 'Switch to light mode'
+        : 'Switch to dark mode';
       localStorage.setItem('theme', theme);
     }
 
@@ -246,47 +309,83 @@
       setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
 
-    // ── Game ──
+    // ── Helpers ──
     function statusLabel(s, currentPlayer) {
       if (s === 'IN_PROGRESS') return `Player ${currentPlayer}'s turn`;
-      if (s === 'DRAW')        return "It's a draw!";
-      return `Player ${s[0]} wins!`;
+      if (s === 'DRAW')        return "Game over: it's a draw!";
+      return `Game over: player ${s[0]} wins!`;
     }
 
+    function cellLabel(name, val) {
+      return val ? `${name}, ${val}` : `${name}, empty`;
+    }
+
+    // ── Board rendering ──
     function renderBoard(data) {
       gameId = data.id;
-      titleEl.textContent = data.name;
+      titleEl.textContent      = data.name;
+      titleEl.setAttribute('aria-label', `Current game: ${data.name}`);
+      document.title           = `Tic Tac Toe – ${data.name}`;
+
+      // Build a row-per-three-cells grid for correct ARIA grid semantics
       boardEl.innerHTML = '';
-      data.board.forEach((val, i) => {
-        const cell = document.createElement('div');
-        cell.className = 'cell' + (val ? ' taken ' + val.toLowerCase() : '');
-        cell.textContent = val;
-        if (!val && data.status === 'IN_PROGRESS') {
-          cell.addEventListener('click', () => makeMove(i));
-        }
-        boardEl.appendChild(cell);
+      [0, 1, 2].forEach(row => {
+        const rowEl = document.createElement('div');
+        rowEl.setAttribute('role', 'row');
+        [0, 1, 2].forEach(col => {
+          const i   = row * 3 + col;
+          const val = data.board[i];
+          const btn = document.createElement('button');
+          btn.className  = 'cell' + (val ? ' taken ' + val.toLowerCase() : '');
+          btn.setAttribute('role', 'gridcell');
+          btn.setAttribute('aria-label', cellLabel(CELL_NAMES[i], val));
+          btn.textContent = val;
+
+          const playable = !val && data.status === 'IN_PROGRESS';
+          btn.disabled = !playable;
+          if (playable) btn.addEventListener('click', () => makeMove(i));
+
+          rowEl.appendChild(btn);
+        });
+        boardEl.appendChild(rowEl);
       });
+
       statusEl.textContent = statusLabel(data.status, data.currentPlayer);
       refreshSidebar();
     }
 
+    // ── Sidebar ──
     async function refreshSidebar() {
       const res   = await fetch('/api/game');
       const games = await res.json();
 
-      sidebarEl.innerHTML = '<h2>Games</h2>';
+      sidebarEl.innerHTML = '<h2 id="sidebar-heading">Games</h2>';
+      if (games.length === 0) {
+        const empty = document.createElement('p');
+        empty.style.cssText = 'font-size:0.85rem;color:var(--text-muted);padding:0.25rem 0';
+        empty.textContent = 'No games yet.';
+        sidebarEl.appendChild(empty);
+        return;
+      }
+
       games.forEach(g => {
-        const el = document.createElement('div');
-        el.className = 'game-entry' + (g.id === gameId ? ' active' : '');
+        const btn = document.createElement('button');
+        btn.className = 'game-entry';
+        btn.setAttribute('aria-current', g.id === gameId ? 'true' : 'false');
+
         const date = new Date(g.startDate).toLocaleDateString(undefined, {
           month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
-        el.innerHTML = `
-          <div class="game-name">${g.name}</div>
-          <div class="game-meta">${date}</div>
-          <span class="game-badge badge-${g.status}">${g.status.replace('_', ' ')}</span>`;
-        el.addEventListener('click', () => loadGame(g.id));
-        sidebarEl.appendChild(el);
+        const statusText = g.status.replace('_', ' ').toLowerCase();
+        btn.setAttribute('aria-label', `Resume game ${g.name}, started ${date}, status: ${statusText}`);
+
+        btn.innerHTML = `
+          <div class="game-name" aria-hidden="true">${g.name}</div>
+          <div class="game-meta" aria-hidden="true">${date}</div>
+          <span class="game-badge badge-${g.status}" aria-hidden="true">${g.status.replace('_', ' ')}</span>`;
+
+        btn.addEventListener('click', () => loadGame(g.id));
+        sidebarEl.appendChild(btn);
       });
     }
 
@@ -294,12 +393,14 @@
       const res  = await fetch(`/api/game/${id}`);
       const data = await res.json();
       renderBoard(data);
+      document.getElementById('main').focus();
     }
 
     async function newGame() {
       const res  = await fetch('/api/game/new', { method: 'POST' });
       const data = await res.json();
       renderBoard(data);
+      document.getElementById('main').focus();
     }
 
     async function makeMove(position) {
